@@ -96,6 +96,98 @@ jobs:
 Commit & push
 
 
+Затем я поняла, что можно и нужно использовать GitHub Actions. Поняв, что файл travis.yml не рабочий, я переписала его, изменив название на build.yml
+
+build.yml
+
+```sh
+name: Formatter
+
+on:
+  push:
+    branches: 
+    - main
+
+  workflow_dispatch:
+
+jobs:
+  Build-library:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build formatter_lib
+        shell: bash
+        run: |
+          cd formatter_lib
+          mkdir build_ && cd build_
+          cmake ..
+          cmake --build .
+          
+      - name: Build formatter_ex_lib
+        shell: bash
+        run: |
+          cd formatter_ex_lib
+          mkdir build_ && cd build_
+          cmake ..
+          cmake --build .
+      - name: Build solver_lib
+        shell: bash
+        run: |
+          cd solver_lib
+          mkdir build_ && cd build_
+          cmake ..
+          cmake --build .
+  
+  Hello-world:
+    runs-on: ubuntu-latest
+    needs: [ Build-library ]
+    
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Build Hello_world
+        shell: bash
+        run: |
+          mkdir build1 && cd build1
+          cmake ..
+          cmake --build .
+  
+      - name: writer
+        shell: bash
+        run: |
+          cd build1/hello_world_application
+          ./hell
+  Build-solver:
+    runs-on: ubuntu-latest
+    needs: [ Build-library ]
+    
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Build solver_application
+        shell: bash
+        run: |
+          mkdir build2 && cd build2
+          cmake ..
+          cmake --build .
+          
+      - name: writer
+        shell: bash
+        run: |
+          cd build2/solver_application
+          ./solve 1 1 1
+```
+
+Работа исправления и удаления всех неправильных файлов проводилась в удалённом репозитории.
+
+Далее проводилась работа по исправлению неточностей в самих файлах CMakeLists.txt для hello_world, основного Мэйк-файла и исправление ошибок в названии файла в solver. (Они возникли, как я поняла из-за того, что я скопировала старую версию ЛР3 у себя на компьютере)
+
+Уже после исправления всех недочётов все тесты выполнились успешно!
+
+[![Formatter](https://github.com/arixixix/Tlab04/actions/workflows/build.yml/badge.svg)](https://github.com/arixixix/Tlab04/actions/workflows/build.yml)
 
 
 
